@@ -10,7 +10,7 @@ import "./ERC2981/ERC2981PerTokenRoyalties.sol";
 import "./VoucherStruct.sol";
 
 
-contract NFT721 is ERC721URIStorage, Ownable, AccessControl, ERC2981PerTokenRoyalties {
+contract NFT721LazyMint is ERC721URIStorage, Ownable, AccessControl, ERC2981PerTokenRoyalties {
 
     bytes4 private constant _INTERFACE_ID_ERC2981 = 0x2a55205a;
     
