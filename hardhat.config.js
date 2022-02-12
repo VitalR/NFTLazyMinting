@@ -15,14 +15,14 @@ module.exports = {
       url: `https://ropsten.infura.io/v3/${INFURA_PROJECT}`,
       accounts: [PRIVATE_KEY_TESTNET]
     }, 
-    mainnet: {
-      url: `https://mainnet.infura.io/v3/${INFURA_PROJECT}`,
-      accounts: [PRIVATE_KEY_MAINNET]
-    },
-    matic: {
-      url: `https://polygon-mumbai.infura.io/v3/${INFURA_PROJECT}`,
-      accounts: [PRIVATE_KEY_TESTNET]
-    },
+    // mainnet: {
+    //   url: `https://mainnet.infura.io/v3/${INFURA_PROJECT}`,
+    //   accounts: [PRIVATE_KEY_MAINNET]
+    // },
+    // matic: {
+    //   url: `https://polygon-mumbai.infura.io/v3/${INFURA_PROJECT}`,
+    //   accounts: [PRIVATE_KEY_TESTNET]
+    // },
   },
   solidity: {
     version: "0.8.10",

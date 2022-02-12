@@ -6,7 +6,7 @@ const { ethers } = require("hardhat")
 const { LazyMinter } = require('../lib')
 
 
-describe("BookNFT", function() {
+describe("NFT721LazyMint", function() {
     const bn = (input) => BigNumber.from(input);
     const BNtoBigInt = (input) => BigInt(input.toString());
     const BigInttoBN = (input) => BigNumber.from(input.toString());
@@ -25,7 +25,7 @@ describe("BookNFT", function() {
     beforeEach(async () => {
         [owner, signer, creator, buyer, addr1, addr2, wrongSigner, _] = await ethers.getSigners()
 
-        let NFTLazy = await ethers.getContractFactory("BookNFT721")
+        let NFTLazy = await ethers.getContractFactory("NFT721LazyMint")
         nftLazyContract = await NFTLazy.deploy(nftName, nftSymbol, owner.address, platformFee)
         await nftLazyContract.deployed()
     })
