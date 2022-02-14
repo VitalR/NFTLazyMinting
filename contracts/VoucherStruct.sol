@@ -8,6 +8,9 @@ struct NFTVoucher {
     /// @notice The minimum price (in wei) that the NFT creator is willing to accept for the initial sale of this NFT.
     uint256 sellingPrice;
 
+    /// @notice Amount of tokens to mint. (needed for ERC-1155 NFTs, set as 1 for ERC-721)
+    uint256 quantity;
+
     /// @notice Percentage basis-points for royalty on secondary sales, eg 495 == 4.95%
     uint16 royaltyBasisPoints;
 
