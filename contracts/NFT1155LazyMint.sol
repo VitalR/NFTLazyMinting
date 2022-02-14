@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
-pragma abicoder v2; // required to accept structs as function parameters
+pragma abicoder v2;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -9,11 +9,10 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "./ERC2981/ERC2981PerTokenRoyalties.sol";
-import "./VoucherERC1155.sol";
-import "./VoucherStructERC1155.sol";
+import "./VoucherStruct.sol";
 
 
-contract NFT1155LazyMint is ERC1155, EIP712, Ownable, AccessControl, Voucher, ERC2981PerTokenRoyalties {
+contract NFT1155LazyMint is ERC1155, Ownable, AccessControl, ERC2981PerTokenRoyalties {
 
     bytes4 private constant _INTERFACE_ID_ERC2981 = 0x2a55205a;
 
@@ -57,7 +56,7 @@ contract NFT1155LazyMint is ERC1155, EIP712, Ownable, AccessControl, Voucher, ER
         return signerAddress;
     }
 
-    function redeemToken(address creator, address redeemer, NFTVoucherERC1155 calldata voucher) external payable returns (uint256) {
+    function redeemToken(address creator, address redeemer, NFTVoucher calldata voucher) external payable returns (uint256) {
         // make sure signature is valid and get the address of the signer
         address signer = _verify(voucher);
         require(signer == signerAddress, "Signature invalid or unauthorized");
@@ -65,7 +64,7 @@ contract NFT1155LazyMint is ERC1155, EIP712, Ownable, AccessControl, Voucher, ER
         require(voucher.sellingPrice > 0, "Token is not listed for sale");
         require(msg.value >= voucher.sellingPrice, "Insufficient funds to redeem");
         // first assign the token to the signer, to establish provenance on-chain
-        _mint(creator, voucher.tokenId, voucher.quantity, "");
+        _mint(creator, voucher.tokenId, voucher.quantity, bytes(""));
         console.log('_mint');
 
         creators[voucher.tokenId] = creator;
@@ -76,7 +75,7 @@ contract NFT1155LazyMint is ERC1155, EIP712, Ownable, AccessControl, Voucher, ER
         // transfer the token to the redeemer
         require(isApprovedForAll(creator, redeemer), "Token should be approved for transfering");
         console.log('setApprovalForAll');
-        safeTransferFrom(creator, redeemer, voucher.tokenId, voucher.quantity, "");
+        safeTransferFrom(creator, redeemer, voucher.tokenId, voucher.quantity, bytes(""));
         console.log('safeTransferFrom');
 
         // send funds to the creator and platform owner
@@ -92,6 +91,12 @@ contract NFT1155LazyMint is ERC1155, EIP712, Ownable, AccessControl, Voucher, ER
         _totalSupply[voucher.tokenId] += voucher.quantity;
 
         return voucher.tokenId;
+    }
+
+    function _verify(NFTVoucher calldata voucher) internal pure returns (address) {
+        bytes32 digest = keccak256(abi.encodePacked(voucher.tokenId, voucher.sellingPrice, voucher.quantity, voucher.royaltyBasisPoints, voucher.tokenUri));
+        
+        return ECDSA.recover(ECDSA.toEthSignedMessageHash(digest), voucher.signature);
     }
 
     function _sendFunds(address _beneficiary, uint256 _value) internal returns (bool) {
