@@ -62,7 +62,7 @@ contract NFT1155LazyMint is ERC1155, Ownable, AccessControl, ERC2981PerTokenRoya
         require(signer == signerAddress, "Signature invalid or unauthorized");
         // make sure that the redeemer is paying enough to cover the buyer's cost
         require(voucher.sellingPrice > 0, "Token is not listed for sale");
-        require(msg.value >= voucher.sellingPrice, "Insufficient funds to redeem");
+        require(msg.value >= (voucher.sellingPrice * voucher.quantity), "Insufficient funds to redeem");
         // first assign the token to the signer, to establish provenance on-chain
         _mint(creator, voucher.tokenId, voucher.quantity, bytes(""));
         console.log('_mint');
