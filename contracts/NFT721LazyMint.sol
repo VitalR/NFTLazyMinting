@@ -80,7 +80,7 @@ contract NFT721LazyMint is ERC721URIStorage, Ownable, AccessControl, ERC2981PerT
     }
 
     function _verify(NFTVoucher calldata voucher) internal pure returns (address) {
-        bytes32 digest = keccak256(abi.encodePacked(voucher.tokenId, voucher.sellingPrice, voucher.royaltyBasisPoints, voucher.tokenUri));
+        bytes32 digest = keccak256(abi.encodePacked(voucher.tokenId, voucher.sellingPrice, voucher.quantity, voucher.royaltyBasisPoints, voucher.tokenUri));
         
         return ECDSA.recover(ECDSA.toEthSignedMessageHash(digest), voucher.signature);
     }
