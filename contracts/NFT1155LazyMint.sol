@@ -101,7 +101,6 @@ contract NFT1155LazyMint is ERC1155, Ownable, AccessControl, ERC2981PerTokenRoya
 
     function _sendFunds(address _beneficiary, uint256 _value) internal returns (bool) {
         uint256 feeAmount = (_value * platformFee) / 10000;
-        Address.sendValue(payable(feeRecipient), feeAmount);
         Address.sendValue(payable(_beneficiary), _value - feeAmount);
 
         return true;
@@ -153,6 +152,11 @@ contract NFT1155LazyMint is ERC1155, Ownable, AccessControl, ERC2981PerTokenRoya
 
     function totalSupply(uint256 _tokenId) public view virtual returns (uint256) {
         return _totalSupply[_tokenId];
+    }
+
+    function withdraw() public payable onlyOwner {
+        (bool success, ) = payable(feeRecipient).call{value: address(this).balance}('');
+        require(success, "Withdraw failed");
     }
 
 }
