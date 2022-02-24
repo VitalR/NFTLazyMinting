@@ -43,7 +43,7 @@ contract NFT1155LazyMint is ERC1155, Ownable, AccessControl, ERC2981PerTokenRoya
         platformFee = _platformFee;
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override (AccessControl, ERC1155, ERC2981Base) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override (AccessControl, ERC1155, ERC2981) returns (bool) {
         return AccessControl.supportsInterface(interfaceId) || ERC1155.supportsInterface(interfaceId)
         || interfaceId == _INTERFACE_ID_ERC2981;
     }

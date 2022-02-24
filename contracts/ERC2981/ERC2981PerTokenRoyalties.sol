@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
 
-import './ERC2981Base.sol';
+import './ERC2981.sol';
 
 /// @dev This is a contract used to add ERC2981 support to ERC721 and 1155
-abstract contract ERC2981PerTokenRoyalties is ERC2981Base {
+abstract contract ERC2981PerTokenRoyalties is ERC2981 {
     mapping(uint256 => RoyaltyInfo) internal _royalties;
 
     /// @dev Sets token royalties

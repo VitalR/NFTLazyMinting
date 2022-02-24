@@ -36,7 +36,7 @@ contract NFT721LazyMint is ERC721URIStorage, Ownable, AccessControl, ERC2981PerT
         platformFee = _platformFee;
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override (AccessControl, ERC721, ERC2981Base) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override (AccessControl, ERC721, ERC2981) returns (bool) {
         return AccessControl.supportsInterface(interfaceId) || ERC721.supportsInterface(interfaceId)
         || interfaceId == _INTERFACE_ID_ERC2981;
     }
