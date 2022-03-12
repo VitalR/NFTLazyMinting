@@ -29,14 +29,14 @@ describe("NFT1155LazyMint", function() {
         await nftLazyContract.deployed()
     })
 
-    it.only("Should be deployed successfully", async () => {
+    it("Should be deployed successfully", async () => {
         expect(nftLazyContract).to.not.equal(0x0);
         expect(nftLazyContract).to.not.equal('');
         expect(nftLazyContract).to.not.equal(null);
         expect(nftLazyContract).to.not.equal(undefined);
     })
 
-    it.only("Should be possible to redeem NFT using signed voucher", async () => {
+    it("Should be possible to redeem NFT using signed voucher", async () => {
         const lazyMinter = new LazyMinterERC1155({ contract: nftLazyContract, signer: signer })
         const voucher = await lazyMinter.createVoucher(1, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
@@ -71,9 +71,7 @@ describe("NFT1155LazyMint", function() {
         assertBNequal(await nftLazyContract.balanceOf(buyer.address, voucher.tokenId), 1)
 
         expect(await ethers.provider.getBalance(creator.address)).to.equal(BNtoBigInt(creatorBalanceBefore) + (BNtoBigInt(amount)))
-
         expect(await ethers.provider.getBalance(owner.address)).to.equal(BNtoBigInt(ownerBalanceBefore) + (BNtoBigInt(feeAmount)))
-
         assert.isTrue((await ethers.provider.getBalance(buyer.address)).lt(BNtoBigInt(buyerBalanceBefore) - (BNtoBigInt(listingPrice))))
     })
 

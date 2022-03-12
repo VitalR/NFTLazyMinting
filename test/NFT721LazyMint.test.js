@@ -17,6 +17,7 @@ describe("NFT721LazyMint", function() {
     const nftSymbol = "NFT"
 
     const tokenId = 1
+    const quantity = 1
     const platformFee = 250
     const royaltyBasisPoints = 500
     const listingPrice = utils.parseEther('1')
@@ -30,16 +31,16 @@ describe("NFT721LazyMint", function() {
         await nftLazyContract.deployed()
     })
 
-    it("Should be deployed successfully", async () => {
+    it.only("Should be deployed successfully", async () => {
         expect(nftLazyContract).to.not.equal(0x0);
         expect(nftLazyContract).to.not.equal('');
         expect(nftLazyContract).to.not.equal(null);
         expect(nftLazyContract).to.not.equal(undefined);
     })
 
-    it("Should be possible to redeem NFT using signed voucher", async () => {
+    it.only("Should be possible to redeem NFT using signed voucher", async () => {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: signer })
-        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         const creatorBalanceBefore = await ethers.provider.getBalance(signer.address)
         const buyerBalanceBefore = await ethers.provider.getBalance(buyer.address)
@@ -67,9 +68,7 @@ describe("NFT721LazyMint", function() {
         assertBNequal(await nftLazyContract.balanceOf(buyer.address), 1)
 
         expect(await ethers.provider.getBalance(creator.address)).to.equal(BNtoBigInt(creatorBalanceBefore) + (BNtoBigInt(amount)))
-
         expect(await ethers.provider.getBalance(owner.address)).to.equal(BNtoBigInt(ownerBalanceBefore) + (BNtoBigInt(feeAmount)))
-
         assert.isTrue((await ethers.provider.getBalance(buyer.address)).lt(BNtoBigInt(buyerBalanceBefore) - (BNtoBigInt(listingPrice))))
     })
 
