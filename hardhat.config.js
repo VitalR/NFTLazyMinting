@@ -3,7 +3,7 @@ require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
 require("dotenv").config();
 
-const { PRIVATE_KEY_TESTNET, INFURA_PROJECT, ETHERSCAN_API_KEY, PRIVATE_KEY_MAINNET } = process.env;
+const { PRIVATE_KEY_TESTNET, INFURA_PROJECT, ETHERSCAN_API_KEY, POLYGONSCAN_API_KEY, PRIVATE_KEY_MAINNET } = process.env;
 
 module.exports = {
   networks: {
@@ -20,6 +20,10 @@ module.exports = {
     //   accounts: [PRIVATE_KEY_MAINNET]
     // },
     // matic: {
+    //   url: `https://polygon-mainnet.infura.io/v3/${INFURA_PROJECT}`,
+    //   accounts: [PRIVATE_KEY_MAINNET]
+    // },
+    // mumbai: {
     //   url: `https://polygon-mumbai.infura.io/v3/${INFURA_PROJECT}`,
     //   accounts: [PRIVATE_KEY_TESTNET]
     // },
@@ -33,7 +37,7 @@ module.exports = {
       }
     }
   },
-  gasPrice: "6100000000",
+  gasPrice: "7100000000",
   gas: "auto",
   gasReporter: {
     gasPrice: 1,
@@ -41,6 +45,7 @@ module.exports = {
     showTimeSpent: true
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY
+    apiKey: ETHERSCAN_API_KEY,
+    apiKey: POLYGONSCAN_API_KEY
   }
 };
