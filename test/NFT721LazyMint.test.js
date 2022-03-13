@@ -1,7 +1,5 @@
 const { expect, assert } = require("chai")
 const { BigNumber, utils } = require('ethers')
-const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers')
-const ether = require("@openzeppelin/test-helpers/src/ether")
 const { ethers } = require("hardhat")
 const { LazyMinter } = require('../lib')
 
@@ -38,9 +36,10 @@ describe("NFT721LazyMint", function() {
         expect(nftLazyContract).to.not.equal(undefined);
     })
 
-    it.only("Should be possible to redeem NFT using signed voucher", async () => {
+    it("Should be possible to redeem NFT using signed voucher", async () => {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: signer })
         const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
+        // const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         const creatorBalanceBefore = await ethers.provider.getBalance(signer.address)
         const buyerBalanceBefore = await ethers.provider.getBalance(buyer.address)
