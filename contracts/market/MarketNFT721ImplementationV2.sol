@@ -219,4 +219,69 @@ contract MarketNFT721ImplementationV2 is Ownable, ReentrancyGuard {
         return netSaleValue;
     }
 
+    /// @notice Method for accepting offer for listed NFT a token and transfers royalties if applicable using ERC20
+    /// @param _nftContract - nftAddress of the smart contract token to sell
+    /// @param _tokenId - id of the token to sell
+    /// @param _offerCreator - offer creator address
+    /// @param _offeredPricePerItem - offer price for each item
+    /// @param _currency - currency being used for the purchase (e.g., DAI/USDC)
+    function acceptOfferWithERC20(
+        address _nftContract, 
+        uint256 _tokenId, 
+        address _offerCreator, 
+        uint256 _offeredPricePerItem, 
+        address _currency,
+        bytes memory _signature
+    ) external nonReentrant {
+        bytes32 messageHash = keccak256(abi.encodePacked(_nftContract, _tokenId, _offerCreator, _offeredPricePerItem, _currency));
+        require(ECDSA.recover(ECDSA.toEthSignedMessageHash(messageHash), _signature) == getSignerAddress(), "Invalid signature");
+
+        require(IERC165(_nftContract).supportsInterface(_INTERFACE_ID_ERC721), "Invalid NFT address");
+        require(IERC721(_nftContract).isApprovedForAll(_msgSender(), address(this)), "Item not approved");
+
+        require(IERC20(_currency).allowance(_offerCreator, address(this)) == _offeredPricePerItem, "Marketplace should be approved as a spender");
+
+        uint256 saleValue = _offeredPricePerItem;
+        uint256 feeAmount = (saleValue * platformFee) / 10000;
+
+        // Pay royalties if applicable
+        if (_checkRoyalties(_nftContract)) {
+            saleValue = _deduceRoyaltiesWithERC20(_nftContract, _tokenId, saleValue, _offerCreator, _currency);
+        }
+
+        // Transfer funds to the feeRecipient
+        IERC20(_currency).safeTransferFrom(_offerCreator, feeRecipient, feeAmount);
+
+        // Transfer funds to the seller
+        IERC20(_currency).safeTransferFrom(_offerCreator, _msgSender(), saleValue - feeAmount);
+
+        // Transfer NFT to buyer
+        IERC721(_nftContract).safeTransferFrom(_msgSender(), _offerCreator, _tokenId);
+
+        // Broadcast the sale
+        emit OfferAccepted(_nftContract, _tokenId, _msgSender(), _offerCreator, _offeredPricePerItem, _currency);
+    }
+
+    /// @notice Transfers royalties in ERC20 to the rightsowner if applicable
+    /// @param _nftContract - nftAddress of the smart contract token to sell
+    /// @param _tokenId - the NFT assed queried for royalties
+    /// @param _grossSaleValue - the price at which the asset will be sold
+    /// @return netSaleAmount - the value that will go to the seller after
+    ///         deducting royalties
+    function _deduceRoyaltiesWithERC20(address _nftContract, uint256 _tokenId, uint256 _grossSaleValue, address _offerCreator, address _currency) internal returns (uint256 netSaleAmount) {
+        // Get amount of royalties to pays and recipient
+        (address royaltiesReceiver, uint256 royaltiesAmount) = IERC2981Royalties(_nftContract).royaltyInfo(_tokenId, _grossSaleValue);
+
+        // Deduce royalties from sale value
+        uint256 netSaleValue = _grossSaleValue - royaltiesAmount;
+
+        // Transfer foyalties to rightholder if not zero
+        if (royaltiesAmount > 0) {
+            IERC20(_currency).safeTransferFrom(_offerCreator, royaltiesReceiver, royaltiesAmount);
+        }
+
+        // Broadcast royalties payment
+        emit RoyaltiesPaidWithERC20(_nftContract, _tokenId, royaltiesReceiver, royaltiesAmount, _currency);
+        return netSaleValue;
+    }
 }
