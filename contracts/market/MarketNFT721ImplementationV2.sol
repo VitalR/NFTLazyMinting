@@ -55,7 +55,7 @@ contract MarketNFT721ImplementationV2 is Ownable, ReentrancyGuard {
     /// @param _contract - the address of the NFT contract to query
     /// @return true if ERC-2981 interface is supported, false otherwise
     function _checkRoyalties(address _contract) view internal returns (bool) {
-        (bool success) = ERC2981Base(_contract).supportsInterface(_INTERFACE_ID_ERC2981);
+        (bool success) = ERC2981(_contract).supportsInterface(_INTERFACE_ID_ERC2981);
         return success;
     }
 
