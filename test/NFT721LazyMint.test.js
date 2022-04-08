@@ -29,7 +29,7 @@ describe("NFT721LazyMint", function() {
         await nftLazyContract.deployed()
     })
 
-    it.only("Should be deployed successfully", async () => {
+    it("Should be deployed successfully", async () => {
         expect(nftLazyContract).to.not.equal(0x0);
         expect(nftLazyContract).to.not.equal('');
         expect(nftLazyContract).to.not.equal(null);
@@ -39,7 +39,6 @@ describe("NFT721LazyMint", function() {
     it("Should be possible to redeem NFT using signed voucher", async () => {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: signer })
         const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
-        // const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         const creatorBalanceBefore = await ethers.provider.getBalance(signer.address)
         const buyerBalanceBefore = await ethers.provider.getBalance(buyer.address)
@@ -73,7 +72,7 @@ describe("NFT721LazyMint", function() {
 
     it("Should revert redeem if NFT is already claimed", async function() {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: signer })
-        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         assertBNequal(await nftLazyContract.balanceOf(signer.address), 0)
         assertBNequal(await nftLazyContract.balanceOf(buyer.address), 0)
@@ -97,7 +96,7 @@ describe("NFT721LazyMint", function() {
 
     it("Should revert redeem if NFT voucher is signed by an unauthorized account", async function() {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: wrongSigner })
-        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         await nftLazyContract.setSignerAddress(signer.address)
 
@@ -109,7 +108,7 @@ describe("NFT721LazyMint", function() {
 
     it("Should revert redeem if NFT voucher is modified", async function() {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: wrongSigner })
-        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         await nftLazyContract.setSignerAddress(signer.address)
         
@@ -122,7 +121,7 @@ describe("NFT721LazyMint", function() {
 
     it("Should revert redeem if NFT voucher has an invalid signature", async function() {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: wrongSigner })
-        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         await nftLazyContract.setSignerAddress(signer.address)
         
@@ -137,7 +136,7 @@ describe("NFT721LazyMint", function() {
 
     it("Should be possible to redeem NFT using signed voucher several time with single signer", async () => {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: signer })
-        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         assertBNequal(await nftLazyContract.balanceOf(signer.address), 0)
         assertBNequal(await nftLazyContract.balanceOf(buyer.address), 0)
@@ -148,7 +147,7 @@ describe("NFT721LazyMint", function() {
 
         assertBNequal(await nftLazyContract.balanceOf(buyer.address), 1)
 
-        const voucher2 = await lazyMinter.createVoucher(2, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher2 = await lazyMinter.createVoucher(2, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         await nftLazyContract.connect(buyer).redeemToken(creator.address, buyer.address, voucher2, { value: listingPrice })
 
@@ -157,7 +156,7 @@ describe("NFT721LazyMint", function() {
 
     it("Should be possible to redeem NFT using signed voucher with different signers", async () => {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: signer })
-        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         assertBNequal(await nftLazyContract.balanceOf(signer.address), 0)
         assertBNequal(await nftLazyContract.balanceOf(buyer.address), 0)
@@ -169,7 +168,7 @@ describe("NFT721LazyMint", function() {
         assertBNequal(await nftLazyContract.balanceOf(buyer.address), 1)
 
         const lazyMinter2 = new LazyMinter({ contract: nftLazyContract, signer: addr1 })
-        const voucher2 = await lazyMinter2.createVoucher(2, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher2 = await lazyMinter2.createVoucher(2, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         await nftLazyContract.connect(owner).setSignerAddress(addr1.address)
 
@@ -180,7 +179,7 @@ describe("NFT721LazyMint", function() {
 
     it("Should revert redeem NFT using signed voucher in case try to mint the same tokenId", async () => {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: signer })
-        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         assertBNequal(await nftLazyContract.balanceOf(signer.address), 0)
         assertBNequal(await nftLazyContract.balanceOf(buyer.address), 0)
@@ -191,7 +190,7 @@ describe("NFT721LazyMint", function() {
 
         assertBNequal(await nftLazyContract.balanceOf(buyer.address), 1)
 
-        const voucher2 = await lazyMinter.createVoucher(tokenId, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher2 = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         await expect(nftLazyContract.connect(buyer).redeemToken(creator.address, buyer.address, voucher2, { value: listingPrice }))
             .to.be.revertedWith('ERC721: token already minted')
@@ -201,7 +200,7 @@ describe("NFT721LazyMint", function() {
 
     it("Should be possible to verify creator royalties after redeem NFT", async () => {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: signer })
-        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, royaltyBasisPoints, tokenUri)
+        const voucher = await lazyMinter.createVoucher(tokenId, listingPrice, quantity, royaltyBasisPoints, tokenUri)
 
         let royalty
         royalty = (listingPrice * royaltyBasisPoints) / 10000
@@ -225,7 +224,7 @@ describe("NFT721LazyMint", function() {
 
     it("Should revert redeem NFT if listingPrice is zero", async () => {
         const lazyMinter = new LazyMinter({ contract: nftLazyContract, signer: signer })
-        const voucher = await lazyMinter.createVoucher(tokenId, 0, royaltyBasisPoints, tokenUri)
+        const voucher = await lazyMinter.createVoucher(tokenId, 0, quantity, royaltyBasisPoints, tokenUri)
 
         assertBNequal(await nftLazyContract.balanceOf(signer.address), 0)
         assertBNequal(await nftLazyContract.balanceOf(buyer.address), 0)
