@@ -1,8 +1,8 @@
 const { expect, assert } = require("chai")
-const { BigNumber, utils } = require('ethers')
-const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers')
+const { BigNumber, utils } = require("ethers")
+const { expectRevert, expectEvent } = require("@openzeppelin/test-helpers")
 const { ethers } = require("hardhat")
-const { LazyMinterERC1155 } = require('../lib')
+const { LazyMinterERC1155 } = require("../lib")
 
 
 describe("NFT1155LazyMint", function() {
@@ -42,24 +42,17 @@ describe("NFT1155LazyMint", function() {
 
         let feeAmount
         feeAmount = (listingPrice * platformFee) / 10000
-        // console.log(feeAmount)
         let amount = listingPrice - feeAmount
-        // console.log(amount)
 
         await nftLazyContract.connect(creator).setApprovalForAll(buyer.address, true)
-        // console.log('setApprovalForAll ', (await ethers.provider.getBalance(creator.address)).toString())
-        const creatorBalanceBefore = await ethers.provider.getBalance(creator.address)
 
+        const creatorBalanceBefore = await ethers.provider.getBalance(creator.address)
         const buyerBalanceBefore = await ethers.provider.getBalance(buyer.address)
-        // console.log("buyerBalanceBefore ", (buyerBalanceBefore).toString())
 
         assertBNequal(await nftLazyContract.balanceOf(signer.address, voucher.tokenId), 0)
         assertBNequal(await nftLazyContract.balanceOf(buyer.address, voucher.tokenId), 0)
 
         await nftLazyContract.connect(owner).setSignerAddress(signer.address)
-
-        const ownerBalanceBefore = await ethers.provider.getBalance(owner.address)
-        // console.log("ownerBalanceBefore ", (ownerBalanceBefore).toString())
 
         expect(await nftLazyContract.connect(buyer).redeemToken(creator.address, buyer.address, voucher, { value: listingPrice }))
             .to.emit(nftLazyContract, 'TransferSingle')
@@ -71,7 +64,7 @@ describe("NFT1155LazyMint", function() {
         assertBNequal(await nftLazyContract.balanceOf(buyer.address, voucher.tokenId), 1)
 
         expect(await ethers.provider.getBalance(creator.address)).to.equal(BNtoBigInt(creatorBalanceBefore) + (BNtoBigInt(amount)))
-        expect(await ethers.provider.getBalance(owner.address)).to.equal(BNtoBigInt(ownerBalanceBefore) + (BNtoBigInt(feeAmount)))
+        expect(await ethers.provider.getBalance(nftLazyContract.address)).to.equal(BNtoBigInt(feeAmount))
         assert.isTrue((await ethers.provider.getBalance(buyer.address)).lt(BNtoBigInt(buyerBalanceBefore) - (BNtoBigInt(listingPrice))))
     })
 
