@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
-pragma abicoder v2;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
@@ -65,26 +63,21 @@ contract NFT1155LazyMint is ERC1155, Ownable, AccessControl, ERC2981PerTokenRoya
         require(msg.value >= (voucher.sellingPrice * voucher.quantity), "Insufficient funds to redeem");
         // first assign the token to the signer, to establish provenance on-chain
         _mint(creator, voucher.tokenId, voucher.quantity, bytes(""));
-        console.log('_mint');
 
         creators[voucher.tokenId] = creator;
         
         _setTokenURI(voucher.tokenId, voucher.tokenUri);
-        console.log('_setTokenURI');
     
         // transfer the token to the redeemer
         require(isApprovedForAll(creator, redeemer), "Token should be approved for transfering");
-        console.log('setApprovalForAll');
+
         safeTransferFrom(creator, redeemer, voucher.tokenId, voucher.quantity, bytes(""));
-        console.log('safeTransferFrom');
 
         // send funds to the creator and platform owner
         _sendFunds(creator, msg.value);
-        console.log('_sendFunds');
 
         // save royalties
         _saveRoyalties(voucher.tokenId, creator, voucher.royaltyBasisPoints);
-        console.log('_saveRoyalties');
 
         emit TokenMintedAndSold(voucher.tokenId, creator, redeemer, msg.value);
 
